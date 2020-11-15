@@ -8,7 +8,7 @@
 depending on their availability.
 Dependent services availability being tracked internally with the help of service implemented.
 All requests can't be served immediately are buffered.
-A global timeout is 10 seconds, can be adjusted in `resources/application.conf` file.
+A global timeout is 10 seconds, can be adjusted in [`resources/application.conf`](src/main/resources/application.conf) file.
 
 ### lo run load balancer
 
