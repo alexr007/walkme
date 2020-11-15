@@ -13,8 +13,11 @@ class JokeRoutes(service: ActorRef[ForwardLogic.Command])(implicit val system: A
 
   def jokeFromService: Future[String] = service.ask(a => RequestAJoke(a))
 
-  val routes: Route = get {
-    complete(jokeFromService)
-  }
+  val routes: Route =
+    pathPrefix("get-fortune") {
+      get {
+        complete(jokeFromService)
+      }
+    }
 
 }

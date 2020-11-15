@@ -1,9 +1,9 @@
 ### short description
 
-`HTTP GET` requests to `http:/localhost:8080/` being forwarded to:
+`HTTP GET` requests to `http://localhost:8080/get-fortune` being forwarded to:
   - [`http://localhost:9551/get-fortune`](http://localhost:9551/get-fortune)
-  - [`http://localhost:9552/get-fortune`](http://localhost:9551/get-fortune)
-  - [`http://localhost:9553/get-fortune`](http://localhost:9551/get-fortune)
+  - [`http://localhost:9552/get-fortune`](http://localhost:9552/get-fortune)
+  - [`http://localhost:9553/get-fortune`](http://localhost:9553/get-fortune)
 
 depending on their availability.
 Dependent services availability being tracked internally with the help of service implemented.
