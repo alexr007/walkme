@@ -18,7 +18,9 @@ sbt run
 
 ### prerequisites
 
-services at `9551`, `9552`, `9553` must be started beforehand according to requirements provided [here](req/README.md). 
+- services at `9551`, `9552`, `9553` must be started beforehand according to requirements provided [here](req/README.md).
+- [`sbt`](https://www.scala-sbt.org/1.x/docs/Setup.html) ([mac](https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Mac.html), [win](https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Windows.html), [linux](https://www.scala-sbt.org/1.x/docs/Installing-sbt-on-Linux.html)) (scala build tool must be installed on your host)
+- don't forget about JDK 8+ ) 
 
 ### technical description
 - [`BalancerApp`](src/main/scala/BalancerApp.scala) - application starter (contains `main` function)
