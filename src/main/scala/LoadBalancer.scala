@@ -14,18 +14,14 @@ object LoadBalancer {
     }
     def nonEmpty = queue.nonEmpty
     def enqueue(rq: A, cb: B => Any) = copy(queue = (rq, cb) :: queue)
-    def dequeue = queue match {
-      case Nil     => (this, None)
-      case rs :+ r => (copy(queue = rs), Some(r))
+    def dequeueAndOccupy = (queue, nextAvailable) match {
+      case (as :+ _, Some(i)) => copy(queue = as).occupy(i)
+      case _                  => this
     }
-    def dequeueOpt = dequeue match {
-      case (_, None)    => None
-      case (s, Some(r)) => Some(s, r)
+    def takeNext = (queue, nextAvailable) match {
+      case (_ :+ x, Some(i))  => Some((x, i))
+      case _                  => None
     }
-    def dequeAndOccupyOpt =
-      dequeueOpt
-        .flatMap { case (s, rh) => nextAvailable.map(i => (s, rh, i)) }
-        .map { case (s, rh, i) => (s.occupy(i), rh, i) }
   }
   /** only one way to build initial state */
   object State {
@@ -37,9 +33,7 @@ object LoadBalancer {
     def enqueue(rq: A, cb: B => Any): Unit = ref.updateAndGet(_.enqueue(rq, cb))
     def release(i: Int): Unit = ref.updateAndGet(_.release(i))
     def dequeueAndOccupy =
-      Some(ref.get)
-        .flatMap(_.dequeAndOccupyOpt)
-        .map { case (s, rr, i) => ref.set(s); rr -> i }
+      ref.getAndUpdate(_.dequeueAndOccupy).takeNext
     def nonEmpty = ref.get.nonEmpty
   }
   /** the only way to create it */
