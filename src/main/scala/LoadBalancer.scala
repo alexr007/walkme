@@ -14,23 +14,14 @@ object LoadBalancer {
     }
     def nonEmpty = queue.nonEmpty
     def enqueue(rq: A, cb: B => Any) = copy(queue = (rq, cb) :: queue)
-    def dequeue = queue match {
-      case Nil     => (this, None)
-      case rs :+ r => (copy(queue = rs), Some(r))
+    def dequeueAndOccupy = (queue, nextAvailable) match {
+      case (as :+ _, Some(i)) => copy(queue = as).occupy(i)
+      case _                  => this
     }
-    def dequeueOpt = dequeue match {
-      case (_, None)    => None
-      case (s, Some(r)) => Some(s, r)
+    def takeNext = (queue, nextAvailable) match {
+      case (_ :+ x, Some(i))  => Some((x, i))
+      case _                  => None
     }
-    def dequeAndOccupy =
-      dequeueOpt
-        .flatMap { case (s, rh) => nextAvailable.map(i => (s, rh, i)) }
-        .map { case (s, rh, i) => (s.occupy(i), rh, i) }
-        .fold[(State[A, B], Option[((A, B => Any), Int)])](
-          (this, None)
-        ){
-          case (s, rh, i) => (s, Some(rh, i))
-        }
   }
   /** only one way to build initial state */
   object State {
@@ -41,15 +32,8 @@ object LoadBalancer {
     private val ref = new AtomicReference(State.initial[A, B](n))
     def enqueue(rq: A, cb: B => Any): Unit = ref.updateAndGet(_.enqueue(rq, cb))
     def release(i: Int): Unit = ref.updateAndGet(_.release(i))
-    def dequeueAndOccupy: Option[((A, B => Any), Int)] = {
-      ref.updateAndGet { s =>
-        s.dequeAndOccupy match {
-          case (s2, x) => s2    // TODO HOW TO EXTRACT X and use it as a result
-        }
-      }
-      ???
-    }
-
+    def dequeueAndOccupy =
+      ref.getAndUpdate(_.dequeueAndOccupy).takeNext
     def nonEmpty = ref.get.nonEmpty
   }
   /** the only way to create it */
