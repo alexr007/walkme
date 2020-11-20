@@ -28,7 +28,7 @@ object LoadBalancer {
 //      case (_ :+ x, Some(i))  => Some((x, i))
 //      case _                  => None
 //    }
-//  }
+  }
   /** only one way to build initial state */
   object State {
     def initial[A, B](n: Int) = new State[A, B](List.empty, Vector.fill(n)(false))
