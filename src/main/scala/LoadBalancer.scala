@@ -38,7 +38,7 @@ object LoadBalancer {
     private val ref = new AtomicReference(State.initial[A, B](n))
     def enqueue(rq: A, cb: B => Any): Unit = ref.updateAndGet(_.enqueue(rq, cb))
     def release(i: Int): Unit = ref.updateAndGet(_.release(i))
-    def dequeueAndOccupy =
+    def dequeueOccupyAndGet =
       ref.getAndUpdate(_.dequeueAndOccupy).takeNext
     def nonEmpty = ref.get.nonEmpty
   }
@@ -51,7 +51,7 @@ object LoadBalancer {
     private val st = StateRef.create[A, B](n)
 
     private def process: Unit =
-      st.dequeueAndOccupy
+      st.dequeueOccupyAndGet
         .foreach { case ((rq, g), i) =>
           f(rq, i)
             .map(g)
