@@ -14,15 +14,21 @@ object LoadBalancer {
     }
     def nonEmpty = queue.nonEmpty
     def enqueue(rq: A, cb: B => Any) = copy(queue = (rq, cb) :: queue)
-    def dequeueAndOccupy = (queue, nextAvailable) match {
-      case (as :+ _, Some(i)) => copy(queue = as).occupy(i)
-      case _                  => this
+    def dequeue = (queue, nextAvailable) match {
+      case (as :+ a, Some(i)) => (copy(queue = as).occupy(i), Some((a, i)))
+      case _                  => (this,                       None)
     }
-    def takeNext = (queue, nextAvailable) match {
-      case (_ :+ x, Some(i))  => Some((x, i))
-      case _                  => None
-    }
-  }
+    def dequeueAndOccupy: State[A, B] = dequeue._1
+//      (queue, nextAvailable) match {
+//      case (as :+ _, Some(i)) => copy(queue = as).occupy(i)
+//      case _                  => this
+//    }
+    def takeNext: Option[((A, B => Any), Int)] = dequeue._2
+//  (queue, nextAvailable) match {
+//      case (_ :+ x, Some(i))  => Some((x, i))
+//      case _                  => None
+//    }
+//  }
   /** only one way to build initial state */
   object State {
     def initial[A, B](n: Int) = new State[A, B](List.empty, Vector.fill(n)(false))
